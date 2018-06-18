@@ -1,0 +1,111 @@
+{
+    "name": "verbruggenalex/gdc",
+    "description": "Git-Docker-Composer",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Alexander Verbruggen",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.5",
+        "ext-curl": "*",
+        "ext-gd": "*",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-xml": "*",
+        "composer/installers": "^1.2",
+        "composer/semver": "^1.4",
+        "cweagans/composer-patches": "^1.6",
+        "drupal-composer/preserve-paths": "^0.1",
+        "drupal/admin_menu": "^3.0@RC",
+        "drupal/composer_autoloader": "^1.0",
+        "drupal/drupal": "~7.0",
+        "drupal/gdpr": "dev-7.x-1.x",
+        "drupal/settingsphp": "1.x-dev",
+        "drupal/translation_helpers": "^1.0",
+        "drupal/username_enumeration_prevention": "^1.2",
+        "drush/drush": "~8.0",
+        "ec-europa/multisite_drupal_standard": "2.5.35",
+        "openeuropa/task-runner": "^0.5.0",
+        "symfony/filesystem": "~2.7|^3",
+        "webflo/drupal-finder": "^1.0.0"
+    },
+    "require-dev": {
+        "behat/behat": "^3.4",
+        "drupal/devel": "~1.5.0",
+        "drupal/drupal-extension": "^3.4",
+        "drupal/maillog": "1.0.0-alpha1",
+        "drupal/stage_file_proxy": "1.7.0",
+        "openeuropa/code-review": "^0.2.0",
+        "project/database": "1.0.0"
+    },
+    "conflict": {
+        "drupal/core": "8.*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "5.6"
+        }
+    },
+    "extra": {
+        "installer-paths": {
+            "web/": ["type:drupal-core"],
+            "web/profiles/{$name}/": ["type:drupal-profile"],
+            "web/sites/all/drush/{$name}/": ["type:drupal-drush", "drupal/settingsphp"],
+            "web/sites/all/libraries/{$name}/": ["type:drupal-library"],
+            "web/sites/all/modules/contrib/{$name}/": ["type:drupal-module"],
+            "web/sites/all/themes/contrib/{$name}/": ["type:drupal-theme"]
+        },
+        "patches": {
+            "cweagans/composer-patches": [
+                "https://github.com/SebCorbin/composer-patches/commit/1cb9bacba51f8bba0c5f3f322c3bb61e4ceae974.patch"
+            ],
+            "drupal/settingsphp": [
+                "https://www.drupal.org/files/issues/2018-05-20/settingsphp-add-option-to-skip-validation-2662480-3.patch"
+            ],
+            "drupal/stage_file_proxy": [
+                "https://www.drupal.org/files/issues/hotlinking-doesnt-work-for-files-2820271-1.patch"
+            ]
+        },
+        "enable-patching": true,
+        "preserve-paths": [
+            "web/sites/all/drush",
+            "web/sites/all/libraries",
+            "web/sites/all/modules/contrib",
+            "web/sites/all/modules/custom",
+            "web/sites/all/modules/features",
+            "web/sites/all/themes/contrib",
+            "web/sites/all/themes/custom",
+            "web/sites/all/translations",
+            "web/sites/default"
+        ]
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/7"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "project/database",
+                "version": "1.0.0",
+                "dist": {
+                    "url": "https://github.com/verbruggenalex/composer-docker/releases/download/1.0.0/drupal.sql.gz",
+                    "type": "gzip"
+                }
+            }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/brainsum/gdpr"
+        }
+    ]
+}
