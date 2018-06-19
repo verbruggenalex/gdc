@@ -4,10 +4,12 @@ services:
     image: puteulanus/c9-ssh
     environment:
       - WORKSPACE_DIR=${PWD}
+      - USERNAME=root
+      - PASSWORD=root
       - SSH_IP=web
     volumes:
       - ${PWD}:${PWD}
-      - ~/.ssh:/.ssh
+      - ~/.ssh/authorized_keys:/.ssh/authorized_keys
     labels:
       - 'traefik.backend=cloud9'
       - 'traefik.port=8080'
@@ -21,11 +23,12 @@ services:
     working_dir: ${PWD}
     volumes:
       - ${PWD}:${PWD}
-      - ~/.ssh:/root/.ssh
+      - ~/.ssh:/root/.ssh/
     labels:
       - 'traefik.backend=web'
       - 'traefik.port=8080'
       - 'traefik.frontend.rule=Host:${PROJECT_BASE_URL:-domain.local}'
+      - 'traefik.frontend.auth.basic=root:$$apr1$$maTXzIMX$$YXkPh8TX5lm2dpFGb6GrQ.'
   mysql:
     image: mysql:5.7
     environment:
@@ -49,6 +52,7 @@ services:
     labels:
       - 'traefik.backend=pma'
       - 'traefik.frontend.rule=Host:phpmyadmin.${PROJECT_BASE_URL:-domain.local}'
+      - 'traefik.frontend.auth.basic=root:$$apr1$$maTXzIMX$$YXkPh8TX5lm2dpFGb6GrQ.'
   solr:
     image: fpfis/solr5
     labels:

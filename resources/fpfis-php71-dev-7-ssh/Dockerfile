@@ -11,7 +11,7 @@ RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
 
 EXPOSE 22
 
-RUN echo "cd \$DOCUMENT_ROOT" >> ~/.bashrc
+#RUN echo "cd \$DOCUMENT_ROOT" >> ~/.bashrc
 
 ADD resources/supervisor-sshd.conf /etc/supervisor/conf.d/sshd.conf
 
