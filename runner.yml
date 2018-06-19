@@ -64,7 +64,7 @@ drupal:
     - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_admin_created_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_admin_created_body', NULL, array(), FALSE)));\" -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_no_approval_required_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_no_approval_required_body', NULL, array(), FALSE)));\" -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} vset nexteuropa_webtools_smartloader_prurl //ec.europa.eu/load.js"
-    - "${runner.bin_dir}/drush -r ${drupal.root} en translation_helpers -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} en translation_helpers apachesolr -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} solr-set-env-url http://solr:8983/solr/d7_apachesolr"
 
 # -----------------------------------------------------------------------------
