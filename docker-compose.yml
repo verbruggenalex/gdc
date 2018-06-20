@@ -1,7 +1,7 @@
 version: '3'
 services:
   cloud9:
-    image: puteulanus/c9-ssh
+    build: resources/cloud9
     environment:
       - WORKSPACE_DIR=${PWD}
       - USERNAME=root
@@ -9,16 +9,18 @@ services:
       - SSH_IP=web
     volumes:
       - ${PWD}:${PWD}
-      - ~/.ssh/authorized_keys:/.ssh/authorized_keys
+      - /usr/local/bin/docker-compose:/usr/local/bin/docker-compose
+      - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - 'traefik.backend=cloud9'
       - 'traefik.port=8080'
       - 'traefik.frontend.rule=Host:cloud9.${PROJECT_BASE_URL:-domain.local}'
   web:
-    build: resources/fpfis-php71-dev-7-ssh
+    image: fpfis/php71-dev-7
+    hostname: ${PROJECT_BASE_URL:-domain.local}
     environment:
       - DOCUMENT_ROOT=${PWD}/web
-      - XDEBUG_CONFIG=idekey=cloud9ide remote_connect_back=0 remote_host=172.20.0.1
+      - XDEBUG_CONFIG=idekey="cloud9ide remote_connect_back=0 remote_host=172.18.0.1"
       - COMPOSER_PROCESS_TIMEOUT=600
     working_dir: ${PWD}
     volumes:
