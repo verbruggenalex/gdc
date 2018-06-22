@@ -17,11 +17,11 @@ runner:
 drupal:
   root: "web"
   root_absolute: ~
-  base_url: "http://domain:local"
+  base_url: "http://google.verbruggenlex"
 
   # Basic Drupal site information.
   site:
-    name: "Site name"
+    name: "Representation in Portugal"
     mail: "info@example.org"
     profile: "multisite_drupal_standard"
     update: "false"
@@ -54,18 +54,8 @@ drupal:
   # You can use same syntax as the "commands:", check the documentation for more.
   # Configuration token replacement is supported too.
   pre_install:
-    - "ln -sf $PWD/settings.local.php $PWD/${drupal.root}/sites/${drupal.site.sites_subdir}/settings.local.php"
-    - "mkdir -p ${drupal.root}/sites/${drupal.site.sites_subdir}/files/private_files"
-    - "mkdir -p ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
-    - "chmod -R 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files"
-    - "chmod -R 777 ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
   post_install:
-    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_status_activated_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('status_activated_body', NULL, array(), FALSE)));\" -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_admin_created_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_admin_created_body', NULL, array(), FALSE)));\" -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_no_approval_required_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_no_approval_required_body', NULL, array(), FALSE)));\" -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} vset nexteuropa_webtools_smartloader_prurl //ec.europa.eu/load.js"
-    - "${runner.bin_dir}/drush -r ${drupal.root} en translation_helpers apachesolr -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} solr-set-env-url http://solr:8983/solr/d7_apachesolr"
+    - "${runner.bin_dir}/run drupal:setup-development"
 
 # -----------------------------------------------------------------------------
 # GitHub configuration values.
@@ -100,19 +90,30 @@ release:
 # -----------------------------------------------------------------------------
 commands:
   drupal:site-clone:
-    - "cp -Rf $PWD/${drupal.root}/sites/${drupal.site.sites_subdir}/default.settings.php $PWD/${drupal.root}/sites/${drupal.site.sites_subdir}/settings.php"
-    - "ln -sf $PWD/settings.local.php $PWD/${drupal.root}/sites/${drupal.site.sites_subdir}/settings.local.php"
-    - "mkdir -p ${drupal.root}/sites/${drupal.site.sites_subdir}/files/private_files"
-    - "mkdir -p ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
-    - "chmod -R 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files"
-    - "chmod -R 777 ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
-#    - "${runner.bin_dir}/drush -r ${drupal.root}  sql-drop -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} settingsphp-generate --db-url=mysql://user:password@mysql:3306/drupal --skip-validation -y"
     - "while ! mysqladmin ping --user=user -h mysql --password=password --silent; do echo Waiting for mysql; sleep 3; done"
     - "${runner.bin_dir}/drush -r ${drupal.root} sql-create --target=default -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} sql-create --target=extra -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root}  sqlc --target=default < ./vendor/project/database/drupal.sql"
-  drupal:site-sanitize:
-    - "${runner.bin_dir}/drush -r ${drupal.root} gdpr-sql-dump --result-file=../vendor/project/database/drupal-sanitized.sql"
-    - "${runner.bin_dir}/drush -r ${drupal.root} sql-drop --target=extra -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} sql-create --target=extra -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} sqlc --target=extra < ./vendor/project/database/drupal-sanitized.sql"
+    - "${runner.bin_dir}/drush -r ${drupal.root}  sqlc --target=default < ./vendor/project/database/sanitized_daily_multisite_unitedkingdom_production.sql"
+    - "${runner.bin_dir}/drush -r ${drupal.root} rr"
+    - "${runner.bin_dir}/run drupal:setup-development"
+  drupal:setup-development:
+    - "${runner.bin_dir}/drush -r ${drupal.root} dis nexteuropa_varnish -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} en stage_file_proxy devel maillog translation_helpers apachesolr reps_unitedkingdom_core -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_status_activated_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('status_activated_body', NULL, array(), FALSE)));\" -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_admin_created_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_admin_created_body', NULL, array(), FALSE)));\" -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_no_approval_required_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_no_approval_required_body', NULL, array(), FALSE)));\" -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} vset nexteuropa_webtools_smartloader_prurl //ec.europa.eu/load.js"
+    - "${runner.bin_dir}/drush -r ${drupal.root} vset stage_file_proxy_origin https://ec.europa.eu/unitedkingdom"
+    - "${runner.bin_dir}/drush -r ${drupal.root} vset stage_file_proxy_origin_dir sites/unitedkingdom/files"
+    - "${runner.bin_dir}/drush -r ${drupal.root} solr-set-env-url http://solr:8983/solr/d7_apachesolr"
+    - "${runner.bin_dir}/drush -r ${drupal.root} vset stage_file_proxy_hotlink 1"
+  drupal:setup-folders:
+    - "mkdir -p ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache && chmod -R 777 ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
+    - "mkdir -p ${PWD}/web/sites/all/modules/fpfis-sysadmin ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features/reps ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/custom/reps ${PWD}/web/sites/${drupal.site.sites_subdir}/themes/custom/reps"
+    - "mkdir -p ${drupal.root}/sites/${drupal.site.sites_subdir}/files/private_files && chmod -R 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files"
+    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/modules/custom/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/custom/reps"
+    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/features/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features/reps"
+    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/themes/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/themes/custom/reps"
+    - "ln -sf ${PWD}/vendor/project/devops/sites/all/modules/fpfis/*/ ${PWD}/web/sites/all/modules/fpfis-sysadmin"
+    - "ln -sf ${PWD}/lib/modules/features/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features"
+    - "ln -sf $PWD/web/sites/${drupal.site.sites_subdir} $PWD/web/sites/unitedkingdom"
