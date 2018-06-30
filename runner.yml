@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 runner:
   bin_dir: "./vendor/bin"
+  tasks: []
 
 # -----------------------------------------------------------------------------
 # Drupal-related settings.
@@ -53,7 +54,7 @@ drupal:
   # List of shell commands to be before and after the site installation.
   # You can use same syntax as the "commands:", check the documentation for more.
   # Configuration token replacement is supported too.
-  pre_install:
+  pre_install: []
   post_install:
     - "${runner.bin_dir}/run drupal:setup-development"
 
@@ -98,7 +99,7 @@ commands:
     - "${runner.bin_dir}/run drupal:setup-development"
   drupal:setup-development:
     - "${runner.bin_dir}/drush -r ${drupal.root} dis nexteuropa_varnish -y"
-    - "${runner.bin_dir}/drush -r ${drupal.root} en stage_file_proxy devel maillog translation_helpers apachesolr reps_unitedkingdom_core -y"
+    - "${runner.bin_dir}/drush -r ${drupal.root} en stage_file_proxy devel maillog translation_helpers apachesolr -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_status_activated_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('status_activated_body', NULL, array(), FALSE)));\" -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_admin_created_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_admin_created_body', NULL, array(), FALSE)));\" -y"
     - "${runner.bin_dir}/drush -r ${drupal.root} eval \"variable_set('user_mail_register_no_approval_required_body', str_replace('[user:name]', '[user:name-raw]', _user_mail_text('register_no_approval_required_body', NULL, array(), FALSE)));\" -y"
@@ -108,12 +109,10 @@ commands:
     - "${runner.bin_dir}/drush -r ${drupal.root} solr-set-env-url http://solr:8983/solr/d7_apachesolr"
     - "${runner.bin_dir}/drush -r ${drupal.root} vset stage_file_proxy_hotlink 1"
   drupal:setup-folders:
-    - "mkdir -p ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache && chmod -R 777 ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
-    - "mkdir -p ${PWD}/web/sites/all/modules/fpfis-sysadmin ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features/reps ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/custom/reps ${PWD}/web/sites/${drupal.site.sites_subdir}/themes/custom/reps"
-    - "mkdir -p ${drupal.root}/sites/${drupal.site.sites_subdir}/files/private_files && chmod -R 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files"
-    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/modules/custom/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/custom/reps"
-    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/features/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features/reps"
-    - "ln -sf ${PWD}/vendor/ec-europa/ec-reps-platform/lib/themes/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/themes/custom/reps"
+    - "mkdir -p -m 777 ${drupal.root}/profiles/${drupal.site.profile}/libraries/mpdf/graph_cache"
+    - "mkdir -p -m 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files"
+    - "mkdir -p -m 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files/private_files"
+    - "mkdir -p -m 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files/print_pdf/print_pdf_mpdf/tmp"
+    - "mkdir -p -m 777 ${drupal.root}/sites/${drupal.site.sites_subdir}/files/print_pdf/print_pdf_mpdf/ttfontdata"
+    - "mkdir -p ${PWD}/web/sites/all/modules/fpfis-sysadmin"
     - "ln -sf ${PWD}/vendor/project/devops/sites/all/modules/fpfis/*/ ${PWD}/web/sites/all/modules/fpfis-sysadmin"
-    - "ln -sf ${PWD}/lib/modules/features/*/ ${PWD}/web/sites/${drupal.site.sites_subdir}/modules/features"
-    - "ln -sf $PWD/web/sites/${drupal.site.sites_subdir} $PWD/web/sites/unitedkingdom"
