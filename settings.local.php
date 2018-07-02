@@ -25,5 +25,5 @@ $databases = array (
   ),
 );
 ini_set('max_input_vars', 3000);
-//$base_url = 'http:/domain.local';
+$base_url = 'http:/alexverb.com';
 $conf['drupal_http_request_fails'] = FALSE;

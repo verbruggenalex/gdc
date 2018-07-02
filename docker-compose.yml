@@ -24,16 +24,18 @@ services:
         working_dir: /var/www
         volumes:
             - ${PWD}:/var/www
-            - ~/.ssh:/root/.ssh/
+            - ~/.ssh:/root/.ssh
             - ~/.composer:/root/.composer
         environment:
               XDEBUG_CONFIG: idekey=cloud9ide remote_host=cloud9 remote_connect_back=0
               TERM: xterm
               COLUMNS: 201
         labels:
-             traefik.backend: httpd
-             traefik.port: 8080
-             traefik.frontend.rule: Host:${HOSTNAME:-localhost}
+             traefik.httpd.backend: httpd
+             traefik.httpd.port: 8080
+             traefik.httpd.frontend.rule: Host:${HOSTNAME:-localhost}
+             traefik.ssh.backend: ssh
+             traefik.ssh.port: 22
     mail:
         image: tophfr/mailcatcher
         labels:
