@@ -6,6 +6,8 @@ services:
         build: ./resources/docker/cloud9
         volumes:
             - ${PWD}:/var/www
+            - ~/.ssh:/root/.ssh
+            - ~/.composer:/root/.composer
         environment:
             C9_IP: ${C9_IP:-0.0.0.0}
             C9_PORT: ${C9_PORT:-8080}
